@@ -68,6 +68,46 @@ def get_policy(ctx: AuthContext, policy_id: str) -> dict[str, Any]:
     }
 
 
+def get_store_policy(ctx: AuthContext, store_id: int) -> dict[str, Any]:
+    """Fetch the applicable policy for a store by id. Risk tier: read.
+
+    Store policies are public help-center content, so every role may use this
+    tool. A store-specific policy takes precedence when one exists; otherwise
+    the Cartwheel return policy is returned as the platform default.
+
+    Returns:
+        On success: the store id and name, the applicable policy fields, and
+        ``uses_platform_default`` indicating whether the fallback was used.
+        For an unknown store: a structured ``not_found`` error.
+    """
+    with db.connection() as conn:
+        store = db.get_store(conn, store_id)
+    if store is None:
+        return {
+            "ok": False,
+            "error": "not_found",
+            "reason": f"no store with id {store_id}",
+        }
+
+    store_policy_id = f"store-{store.slug}-policy"
+    docs = {doc.policy_id: doc for doc in load_policy_docs()}
+    policy = docs.get(store_policy_id)
+    uses_platform_default = policy is None
+    if policy is None:
+        policy = docs["cw-returns"]
+
+    return {
+        "ok": True,
+        "store_id": store.id,
+        "store_name": store.name,
+        "policy_id": policy.policy_id,
+        "title": policy.title,
+        "audience": policy.audience,
+        "body": policy.body,
+        "uses_platform_default": uses_platform_default,
+    }
+
+
 def search_products(
     ctx: AuthContext,
     query: str,

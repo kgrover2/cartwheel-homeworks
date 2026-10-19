@@ -388,6 +388,14 @@ def get_policy(wrapper: RunContextWrapper[AuthContext], policy_id: str) -> dict[
 
 
 @function_tool
+def get_store_policy(
+    wrapper: RunContextWrapper[AuthContext], store_id: int
+) -> dict[str, Any]:
+    """Fetch the applicable public policy for a store id, including overrides."""
+    return _call(wrapper, hw_tools.get_store_policy, store_id)
+
+
+@function_tool
 def search_products(
     wrapper: RunContextWrapper[AuthContext],
     query: str,
@@ -436,6 +444,7 @@ def find_order(
 _COMMON_TOOLS = [
     search_help_center,
     get_policy,
+    get_store_policy,
     search_products,
     get_order,
     issue_refund,
