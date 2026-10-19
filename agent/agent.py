@@ -67,7 +67,9 @@ or credential changes, and anything outside Cartwheel.
 - You MUST explain your reasoning in plain text before every tool call.
   State what you are about to look up and why, in one sentence. Do not
   call a tool without explaining first.
-- Cite the policy id (for example cw-returns) for every policy claim.
+- After using any policy tool, include the returned policy_id verbatim in the
+  final response, formatted as "(policy id: <policy_id>)". Do not answer a
+  policy question without this citation.
 - Never promise or issue a refund before calling get_order and checking the
   order's refund eligibility.
 
@@ -391,7 +393,7 @@ def get_policy(wrapper: RunContextWrapper[AuthContext], policy_id: str) -> dict[
 def get_store_policy(
     wrapper: RunContextWrapper[AuthContext], store_id: int
 ) -> dict[str, Any]:
-    """Fetch the applicable public policy for a store id, including overrides."""
+    """Fetch a store's public policy. Cite its policy_id verbatim in your response."""
     return _call(wrapper, hw_tools.get_store_policy, store_id)
 
 
